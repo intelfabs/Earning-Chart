@@ -8,6 +8,7 @@ const NODE_COLORS = {
   expense: '#e10600',
   expenseSoft: '#f07f7f',
   profit: '#28a745',
+  loss: '#f59e0b',
   profitSoft: '#98d796',
   tax: '#b91c1c',
   neutral: '#9f6f7e',
@@ -34,7 +35,8 @@ function hasVisibleValue(value) {
 }
 
 function formatCompactCurrency(value, outflow = false) {
-  const absoluteValue = Math.abs(value || 0);
+  const numericValue = Number(value || 0);
+  const absoluteValue = Math.abs(numericValue);
   let formatted;
 
   if (absoluteValue >= 1_000_000_000) {
@@ -47,14 +49,28 @@ function formatCompactCurrency(value, outflow = false) {
     formatted = `$${absoluteValue.toFixed(0)}`;
   }
 
+  if (numericValue < 0) {
+    return `-${formatted}`;
+  }
+
   return outflow ? `(${formatted})` : formatted;
 }
 
-function percentOf(total, value) {
+function percentOf(total, value, absolute = false) {
   if (!total || !value) {
     return null;
   }
-  return Math.round((Math.abs(value) / Math.abs(total)) * 100);
+
+  const ratio = absolute
+    ? Math.abs(value) / Math.abs(total)
+    : Number(value) / Math.abs(total);
+
+  return Math.round(ratio * 100);
+}
+
+function buildPercentDetail(total, value, suffix, absolute = false) {
+  const percentage = percentOf(total, value, absolute);
+  return percentage ? `${percentage}% ${suffix}` : null;
 }
 
 function clamp(value, minimum, maximum) {
@@ -114,6 +130,10 @@ function buildRevenueFeeds(statement, totalRevenue) {
   return visible;
 }
 
+function profitTone(value) {
+  return Number(value || 0) < 0 ? 'loss' : 'profit';
+}
+
 function buildSankeyModel(statementInput) {
   const statement = finalizeStatement(statementInput);
   const values = statement.values;
@@ -131,6 +151,7 @@ function buildSankeyModel(statementInput) {
   const source = [];
   const target = [];
   const value = [];
+  const linkSignedValue = [];
   const linkColors = [];
   const nodeIndex = new Map();
 
@@ -172,6 +193,7 @@ function buildSankeyModel(statementInput) {
     source.push(fromIndex);
     target.push(toIndex);
     value.push(magnitude);
+    linkSignedValue.push(Number(amount || 0));
     linkColors.push(withAlpha(NODE_COLORS[colorKey] || NODE_COLORS.neutral, 0.42));
 
     nodes[fromIndex].value = Math.max(nodes[fromIndex].value || 0, magnitude);
@@ -186,6 +208,9 @@ function buildSankeyModel(statementInput) {
   const tax = values.Tax != null ? values.Tax : Math.max(operatingProfit - (values['Net Profit'] || 0) - Math.max(values.Other || 0, 0), 0);
   const other = values.Other != null ? values.Other : Math.max(operatingProfit - tax - (values['Net Profit'] || 0), 0);
   const netProfit = values['Net Profit'] != null ? values['Net Profit'] : Math.max(operatingProfit - tax - other, 0);
+  const grossProfitColorKey = profitTone(grossProfit);
+  const operatingProfitColorKey = profitTone(operatingProfit);
+  const netProfitColorKey = profitTone(netProfit);
   const expenseBranches = [
     { label: 'R&D', value: values['R&D'] || 0, colorKey: 'expenseSoft' },
     { label: 'SG&A', value: values['SG&A'] || 0, colorKey: 'expenseSoft' },
@@ -201,7 +226,7 @@ function buildSankeyModel(statementInput) {
       annotation: {
         title: item.annotationTitle,
         value: item.value,
-        detail: percentOf(totalRevenue, item.value) ? `${percentOf(totalRevenue, item.value)}% of revenue` : null,
+        detail: buildPercentDetail(totalRevenue, item.value, 'of revenue', true),
         color: NODE_COLORS[item.colorKey],
         variant: 'detail',
         outflow: false,
@@ -218,16 +243,16 @@ function buildSankeyModel(statementInput) {
   });
 
   addLink('Total Revenue', 'Cost of Revenue', costOfRevenue, 'cost');
-  addLink('Total Revenue', 'Gross Profit', grossProfit, 'revenue');
+  addLink('Total Revenue', 'Gross Profit', grossProfit, grossProfitColorKey);
   addLink('Gross Profit', 'Operating Expenses', operatingExpenses, 'expense');
-  addLink('Gross Profit', 'Operating Profit', operatingProfit, 'profit');
+  addLink('Gross Profit', 'Operating Profit', operatingProfit, operatingProfitColorKey);
   expenseBranches.forEach((item) => {
     addLink('Operating Expenses', item.label, item.value, item.colorKey);
   });
   profitBranches.forEach((item) => {
     addLink('Operating Profit', item.label, item.value, item.colorKey);
   });
-  addLink('Operating Profit', 'Net Profit', netProfit, 'profit');
+  addLink('Operating Profit', 'Net Profit', netProfit, netProfitColorKey);
 
   ['Total Revenue', 'Cost of Revenue', 'Gross Profit', 'Operating Expenses', 'Operating Profit', 'Net Profit'].forEach((label) => ensureNode(label));
 
@@ -247,12 +272,12 @@ function buildSankeyModel(statementInput) {
       align: 'center',
     },
   });
-  ensureNode('Gross Profit', 'profit', {
+  ensureNode('Gross Profit', grossProfitColorKey, {
     annotation: {
       title: 'Gross Profit',
       value: grossProfit,
-      detail: percentOf(totalRevenue, grossProfit) ? `${percentOf(totalRevenue, grossProfit)}% margin` : null,
-      color: NODE_COLORS.profit,
+      detail: buildPercentDetail(totalRevenue, grossProfit, 'margin'),
+      color: NODE_COLORS[grossProfitColorKey],
       variant: 'primary',
     },
     annotationPosition: {
@@ -263,12 +288,12 @@ function buildSankeyModel(statementInput) {
       align: 'center',
     },
   });
-  ensureNode('Operating Profit', 'profit', {
+  ensureNode('Operating Profit', operatingProfitColorKey, {
     annotation: {
       title: 'Operating Profit',
       value: operatingProfit,
-      detail: percentOf(totalRevenue, operatingProfit) ? `${percentOf(totalRevenue, operatingProfit)}% margin` : null,
-      color: NODE_COLORS.profit,
+      detail: buildPercentDetail(totalRevenue, operatingProfit, 'margin'),
+      color: NODE_COLORS[operatingProfitColorKey],
       variant: 'primary',
     },
     annotationPosition: {
@@ -279,12 +304,12 @@ function buildSankeyModel(statementInput) {
       align: 'center',
     },
   });
-  ensureNode('Net Profit', 'profit', {
+  ensureNode('Net Profit', netProfitColorKey, {
     annotation: {
       title: 'Net Profit',
       value: netProfit,
-      detail: percentOf(totalRevenue, netProfit) ? `${percentOf(totalRevenue, netProfit)}% margin` : null,
-      color: NODE_COLORS.profit,
+      detail: buildPercentDetail(totalRevenue, netProfit, 'margin'),
+      color: NODE_COLORS[netProfitColorKey],
       variant: 'primary',
     },
     annotationPosition: {
@@ -299,7 +324,7 @@ function buildSankeyModel(statementInput) {
     annotation: {
       title: 'Cost of Revenue',
       value: costOfRevenue,
-      detail: percentOf(totalRevenue, costOfRevenue) ? `${percentOf(totalRevenue, costOfRevenue)}% of revenue` : null,
+      detail: buildPercentDetail(totalRevenue, costOfRevenue, 'of revenue', true),
       color: NODE_COLORS.cost,
       variant: 'secondary',
       outflow: true,
@@ -316,7 +341,7 @@ function buildSankeyModel(statementInput) {
     annotation: {
       title: 'Operating Expenses',
       value: operatingExpenses,
-      detail: percentOf(totalRevenue, operatingExpenses) ? `${percentOf(totalRevenue, operatingExpenses)}% of revenue` : null,
+      detail: buildPercentDetail(totalRevenue, operatingExpenses, 'of revenue', true),
       color: NODE_COLORS.expense,
       variant: 'secondary',
       outflow: true,
@@ -348,11 +373,11 @@ function buildSankeyModel(statementInput) {
   });
 
   ensureNode('Total Revenue', 'revenue', { x: layoutColumns.revenueNodeX, y: 0.29 });
-  ensureNode('Gross Profit', 'profit', { x: layoutColumns.grossCostNodeX, y: 0.14 });
+  ensureNode('Gross Profit', grossProfitColorKey, { x: layoutColumns.grossCostNodeX, y: 0.14 });
   ensureNode('Cost of Revenue', 'cost', { x: layoutColumns.grossCostNodeX, y: 0.6 });
-  ensureNode('Operating Profit', 'profit', { x: layoutColumns.operatingNodeX, y: 0.11 });
+  ensureNode('Operating Profit', operatingProfitColorKey, { x: layoutColumns.operatingNodeX, y: 0.11 });
   ensureNode('Operating Expenses', 'expense', { x: layoutColumns.operatingNodeX, y: 0.54 });
-  ensureNode('Net Profit', 'profit', { x: layoutColumns.terminalNodeX, y: 0.12 });
+  ensureNode('Net Profit', netProfitColorKey, { x: layoutColumns.terminalNodeX, y: 0.12 });
 
   spreadBetween(0.36, 0.48, Math.max(profitBranches.length, 1)).forEach((position, index) => {
     const branch = profitBranches[index];
@@ -438,6 +463,7 @@ function buildSankeyModel(statementInput) {
     source,
     target,
     value,
+    linkSignedValue,
     nodeColors,
     linkColors,
     nodeX: nodes.map((node) => node.x),
