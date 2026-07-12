@@ -1,0 +1,126 @@
+{
+  "facts": {
+    "us-gaap": {
+      "RevenueFromContractWithCustomerExcludingAssessedTax": {
+        "label": "Net sales",
+        "units": {
+          "USD": [
+            {
+              "accn": "0000320193-26-000010",
+              "form": "10-Q",
+              "filed": "2026-08-01",
+              "end": "2026-06-28",
+              "start": "2026-03-30",
+              "val": 94036000000
+            }
+          ]
+        }
+      },
+      "CostOfSales": {
+        "label": "Cost of sales",
+        "units": {
+          "USD": [
+            {
+              "accn": "0000320193-26-000010",
+              "form": "10-Q",
+              "filed": "2026-08-01",
+              "end": "2026-06-28",
+              "start": "2026-03-30",
+              "val": 51749000000
+            }
+          ]
+        }
+      },
+      "GrossProfit": {
+        "label": "Gross margin",
+        "units": {
+          "USD": [
+            {
+              "accn": "0000320193-26-000010",
+              "form": "10-Q",
+              "filed": "2026-08-01",
+              "end": "2026-06-28",
+              "start": "2026-03-30",
+              "val": 42287000000
+            }
+          ]
+        }
+      },
+      "ResearchAndDevelopmentExpense": {
+        "label": "Research and development",
+        "units": {
+          "USD": [
+            {
+              "accn": "0000320193-26-000010",
+              "form": "10-Q",
+              "filed": "2026-08-01",
+              "end": "2026-06-28",
+              "start": "2026-03-30",
+              "val": 8025000000
+            }
+          ]
+        }
+      },
+      "SellingGeneralAndAdministrativeExpense": {
+        "label": "Selling, general and administrative",
+        "units": {
+          "USD": [
+            {
+              "accn": "0000320193-26-000010",
+              "form": "10-Q",
+              "filed": "2026-08-01",
+              "end": "2026-06-28",
+              "start": "2026-03-30",
+              "val": 6462000000
+            }
+          ]
+        }
+      },
+      "OperatingIncomeLoss": {
+        "label": "Operating income",
+        "units": {
+          "USD": [
+            {
+              "accn": "0000320193-26-000010",
+              "form": "10-Q",
+              "filed": "2026-08-01",
+              "end": "2026-06-28",
+              "start": "2026-03-30",
+              "val": 27800000000
+            }
+          ]
+        }
+      },
+      "IncomeTaxExpenseBenefit": {
+        "label": "Provision for income taxes",
+        "units": {
+          "USD": [
+            {
+              "accn": "0000320193-26-000010",
+              "form": "10-Q",
+              "filed": "2026-08-01",
+              "end": "2026-06-28",
+              "start": "2026-03-30",
+              "val": 4200000000
+            }
+          ]
+        }
+      },
+      "NetIncomeLoss": {
+        "label": "Net income",
+        "units": {
+          "USD": [
+            {
+              "accn": "0000320193-26-000010",
+              "form": "10-Q",
+              "filed": "2026-08-01",
+              "end": "2026-06-28",
+              "start": "2026-03-30",
+              "val": 23600000000
+            }
+          ]
+        }
+      }
+    }
+  }
+}

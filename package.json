@@ -1,0 +1,38 @@
+{
+  "name": "earning-chart",
+  "version": "1.0.0",
+  "description": "SEC earnings release Sankey chart service",
+  "license": "MIT",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "vitest run",
+    "test:ui": "node tests/ui/smoke.js",
+    "test:watch": "vitest",
+    "smoke": "node server.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.7.9",
+    "cheerio": "^1.0.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "fast-xml-parser": "^5.10.0",
+    "multer": "^2.2.0",
+    "node-cache": "^5.1.2",
+    "p-throttle": "^7.0.0",
+    "plotly.js-dist-min": "^3.0.1",
+    "tabula-js": "^1.0.1",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "playwright": "^1.54.2",
+    "supertest": "^7.1.0",
+    "vitest": "^2.1.8"
+  }
+}
