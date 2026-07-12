@@ -27,6 +27,7 @@
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   --revenue: #60a5fa;
   --profit: #34d399;
+  --loss: #f59e0b;
   --expense: #f87171;
 }
 
@@ -662,6 +663,10 @@ h2 {
 
 .legend-swatch.profit {
   background: var(--profit);
+}
+
+.legend-swatch.loss {
+  background: var(--loss);
 }
 
 .legend-swatch.expense {

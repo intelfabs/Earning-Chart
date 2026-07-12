@@ -199,6 +199,9 @@
     const isMobile = window.matchMedia('(max-width: 920px)').matches;
     const isConstrained = window.matchMedia('(max-width: 860px)').matches;
     const annotations = buildChartAnnotations(sankey);
+    const linkHoverText = Array.isArray(sankey.linkSignedValue) && sankey.linkSignedValue.length === sankey.value.length
+      ? sankey.linkSignedValue.map((amount) => formatCurrency(amount))
+      : sankey.value.map((amount) => formatCurrency(amount));
 
     const trace = {
       type: 'sankey',
@@ -224,8 +227,9 @@
         source: sankey.source,
         target: sankey.target,
         value: sankey.value,
+        customdata: linkHoverText,
         color: sankey.linkColors,
-        hovertemplate: '%{source.label} → %{target.label}<br>%{value:$,.0f}<extra></extra>',
+        hovertemplate: '%{source.label} → %{target.label}<br>%{customdata}<extra></extra>',
       },
     };
 
