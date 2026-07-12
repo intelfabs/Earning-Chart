@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Earning Chart</title>
+    <title>Income Flows</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -17,21 +17,66 @@
 
     <header class="topbar">
       <div class="topbar-inner">
-        <a class="brand" href="/" aria-label="Earning Chart home">
+        <a class="brand" href="/" aria-label="Income Flows home">
           <span class="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="32" height="32" rx="8" fill="url(#brandGrad)" />
-              <path d="M7 22V10h3.2l3.4 8.2L17 10H20v12h-2.4v-7.4L14.4 22h-2.1l-3.2-7.4V22H7zm14.5 0v-2.1h3.4V10H28v12h-6.5z" fill="#fff" />
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
               <defs>
-                <linearGradient id="brandGrad" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
-                  <stop stop-color="#3B82F6" />
-                  <stop offset="1" stop-color="#06B6D4" />
+                <linearGradient id="brandFrame" x1="8" y1="5" x2="40" y2="43" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#60A5FA" />
+                  <stop offset="0.48" stop-color="#22D3EE" />
+                  <stop offset="1" stop-color="#34D399" />
                 </linearGradient>
+                <radialGradient id="brandGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(33 11) rotate(135) scale(28 24)">
+                  <stop stop-color="#0EA5E9" stop-opacity="0.42" />
+                  <stop offset="1" stop-color="#0B1120" stop-opacity="0" />
+                </radialGradient>
+                <linearGradient id="brandRevenue" x1="13" y1="22" x2="34" y2="18" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#60A5FA" />
+                  <stop offset="1" stop-color="#22D3EE" />
+                </linearGradient>
+                <linearGradient id="brandCost" x1="13" y1="24" x2="35" y2="30" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#38BDF8" />
+                  <stop offset="0.54" stop-color="#60A5FA" />
+                  <stop offset="1" stop-color="#F87171" />
+                </linearGradient>
+                <linearGradient id="brandProfit" x1="13" y1="24" x2="34" y2="18" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#67E8F9" />
+                  <stop offset="1" stop-color="#34D399" />
+                </linearGradient>
+                <filter id="brandBlur" x="7" y="9" width="33" height="25" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+                  <feGaussianBlur stdDeviation="2.8" />
+                </filter>
+                <clipPath id="brandClip">
+                  <rect x="3" y="3" width="42" height="42" rx="13" />
+                </clipPath>
               </defs>
+              <g clip-path="url(#brandClip)">
+                <rect x="3" y="3" width="42" height="42" rx="13" fill="#07111F" />
+                <rect x="3" y="3" width="42" height="42" rx="13" fill="url(#brandGlow)" />
+                <g opacity="0.18" stroke="#94A3B8" stroke-linecap="round">
+                  <path d="M11 15H37" />
+                  <path d="M11 23H37" />
+                  <path d="M11 31H37" />
+                  <path d="M15 11V37" />
+                  <path d="M23 11V37" />
+                  <path d="M31 11V37" />
+                </g>
+                <g filter="url(#brandBlur)" opacity="0.82">
+                  <path d="M14 24C20 24 21 18 27 18H34" stroke="url(#brandProfit)" stroke-width="5.4" stroke-linecap="round" />
+                  <path d="M14 24C20 24 22 30 29 30H35" stroke="url(#brandCost)" stroke-width="4.6" stroke-linecap="round" />
+                </g>
+                <path d="M14 24C20 24 21 18 27 18H34" stroke="url(#brandRevenue)" stroke-width="4.8" stroke-linecap="round" />
+                <path d="M14 24C20 24 22 30 29 30H35" stroke="url(#brandCost)" stroke-width="3.8" stroke-linecap="round" opacity="0.95" />
+                <circle cx="14" cy="24" r="3.25" fill="#60A5FA" />
+                <circle cx="34" cy="18" r="3.15" fill="#34D399" />
+                <circle cx="35" cy="30" r="2.85" fill="#F87171" />
+                <path d="M38 10.4L38.9 13.1L41.6 14L38.9 14.9L38 17.6L37.1 14.9L34.4 14L37.1 13.1L38 10.4Z" fill="#F8FAFC" fill-opacity="0.86" />
+              </g>
+              <rect x="3.5" y="3.5" width="41" height="41" rx="12.5" stroke="url(#brandFrame)" stroke-opacity="0.78" />
             </svg>
           </span>
           <span class="brand-text">
-            <strong>Earning Chart</strong>
+            <strong>Income Flows</strong>
             <span>SEC income statement flows</span>
           </span>
         </a>

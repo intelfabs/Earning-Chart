@@ -188,7 +188,7 @@ async function buildFilingPayload(ticker, dependencies) {
       sourceAttempted,
     });
 
-    console.info(`[earning-chart] ${company.ticker} confidence=${payload.confidence.score} source=${payload.sourceType}`);
+    console.info(`[income-flows] ${company.ticker} confidence=${payload.confidence.score} source=${payload.sourceType}`);
     return payload;
   });
 }
@@ -321,7 +321,7 @@ if (require.main === module) {
   const app = createApp();
   const port = Number(process.env.PORT || 3000);
   app.listen(port, () => {
-    console.info(`Earning Chart listening on http://localhost:${port}`);
+    console.info(`Income Flows listening on http://localhost:${port}`);
   });
 }
 

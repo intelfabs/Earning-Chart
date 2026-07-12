@@ -1,6 +1,6 @@
-# Earning Chart
+# Income Flows
 
-Earning Chart is a Node.js and Express web service that fetches the latest SEC filing for a public ticker, extracts income statement line items, builds a Sankey data model, and renders an interactive Plotly chart with export tools.
+Income Flows is a Node.js and Express web service that fetches the latest SEC filing for a public ticker, extracts income statement line items, builds a Sankey data model, and renders an interactive Plotly chart with export tools.
 
 ## Features
 

@@ -497,7 +497,7 @@
 
     const link = document.createElement('a');
     link.href = dataUrl;
-    link.download = `${(state.payload?.ticker || 'earning-chart').toLowerCase()}-income-statement.${format}`;
+    link.download = `${(state.payload?.ticker || 'income-flows').toLowerCase()}-income-statement.${format}`;
     link.click();
   }
 

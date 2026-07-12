@@ -246,7 +246,7 @@ async function parsePdfIncomeStatement(filePath, options = {}) {
 }
 
 async function parsePdfBuffer(pdfBuffer, options = {}) {
-  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'earning-chart-'));
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'income-flows-'));
   const tempPath = path.join(tempDir, options.fileName || 'upload.pdf');
 
   try {

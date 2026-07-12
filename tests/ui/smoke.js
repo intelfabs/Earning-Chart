@@ -159,7 +159,7 @@ async function assertFileLooksValid(filePath, expectations) {
 async function run() {
   const fixtureServer = await startFixtureServer();
   const browser = await chromium.launch({ headless: true });
-  const downloadDir = await fs.mkdtemp(path.join(os.tmpdir(), 'earning-chart-ui-'));
+  const downloadDir = await fs.mkdtemp(path.join(os.tmpdir(), 'income-flows-ui-'));
   const context = await browser.newContext({
     acceptDownloads: true,
     viewport: { width: 1440, height: 1400 },

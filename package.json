@@ -1,7 +1,7 @@
 {
-  "name": "earning-chart",
+  "name": "income-flows",
   "version": "1.0.0",
-  "description": "SEC earnings release Sankey chart service",
+  "description": "Interactive SEC income statement flow explorer",
   "license": "MIT",
   "main": "server.js",
   "type": "commonjs",
