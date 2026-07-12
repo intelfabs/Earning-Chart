@@ -101,6 +101,17 @@ async function ensureChartReady(page) {
   await ensureButtonEnabled(page, '#download-png-button');
 }
 
+async function assertChartMetadataRendered(page, textSnippets) {
+  const annotationText = await page.evaluate(() => Array.from(document.querySelectorAll('#chart .annotation'))
+    .map((annotation) => annotation.textContent.replace(/\s+/g, ' ').trim())
+    .join(' | '));
+
+  const missing = textSnippets.filter((snippet) => !annotationText.includes(snippet));
+  if (missing.length > 0) {
+    throw new Error(`Chart metadata annotation is missing: ${missing.join(', ')}`);
+  }
+}
+
 async function assertNoVisibleAnnotationOverlap(page) {
   const overlaps = await page.evaluate(() => {
     const annotations = Array.from(document.querySelectorAll('#chart .annotation'));
@@ -146,6 +157,10 @@ async function assertFileLooksValid(filePath, expectations) {
     const text = await fs.readFile(filePath, 'utf8');
     if (!text.includes('<svg')) {
       throw new Error('SVG download did not contain an <svg> root element.');
+    }
+    const missing = (expectations.textIncludes || []).filter((snippet) => !text.includes(snippet));
+    if (missing.length > 0) {
+      throw new Error(`SVG download is missing expected text: ${missing.join(', ')}`);
     }
   } else {
     const buffer = await fs.readFile(filePath);
@@ -211,10 +226,12 @@ async function run() {
   try {
     await page.goto(`${fixtureServer.baseUrl}/sankey?ticker=AAPL`, { waitUntil: 'networkidle' });
     await ensureChartReady(page);
+    await assertChartMetadataRendered(page, ['Apple Inc.', '10-Q', 'Filed Aug 1, 2026']);
 
     await page.click('[data-ticker="MSFT"]');
     await page.waitForFunction(() => document.getElementById('ticker-input').value === 'MSFT');
     await ensureChartReady(page);
+    await assertChartMetadataRendered(page, ['Apple Inc.', '10-Q', 'Filed Aug 1, 2026']);
 
     const pngDownloadPromise = page.waitForEvent('download');
     await page.click('#download-png-button');
@@ -228,7 +245,10 @@ async function run() {
     const svgDownload = await svgDownloadPromise;
     const svgPath = path.join(downloadDir, 'chart.svg');
     await svgDownload.saveAs(svgPath);
-    await assertFileLooksValid(svgPath, { format: 'svg' });
+    await assertFileLooksValid(svgPath, {
+      format: 'svg',
+      textIncludes: ['Apple Inc.', '10-Q', 'Filed Aug 1, 2026'],
+    });
 
     await page.click('#copy-button');
     await page.waitForFunction(() => Array.isArray(window.__clipboardWrites) && window.__clipboardWrites.length > 0);

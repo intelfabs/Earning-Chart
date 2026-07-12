@@ -63,6 +63,23 @@
     }).format(Number(value));
   }
 
+  function formatDisplayDate(value) {
+    if (!value) {
+      return null;
+    }
+
+    const parsed = new Date(`${value}T00:00:00`);
+    if (Number.isNaN(parsed.getTime())) {
+      return value;
+    }
+
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }).format(parsed);
+  }
+
   function setStatus(message, tone) {
     elements.statusMessage.textContent = message;
     elements.statusMessage.dataset.tone = tone || 'default';
@@ -165,8 +182,45 @@
       .replace(/'/g, '&#39;');
   }
 
-  function buildChartAnnotations(sankey) {
-    return (sankey.annotations || []).map((annotation) => {
+  function buildChartMetadataAnnotation(payload) {
+    if (!payload) {
+      return null;
+    }
+
+    const filing = payload.filing || {};
+    const companyLabel = escapeHtml(payload.companyName || payload.ticker || 'Company');
+    const formLabel = filing.form ? escapeHtml(filing.form) : 'SEC filing';
+    const filedLabel = filing.filingDate
+      ? `Filed ${escapeHtml(formatDisplayDate(filing.filingDate))}`
+      : filing.reportDate
+        ? `Filed ${escapeHtml(formatDisplayDate(filing.reportDate))}`
+        : null;
+
+    return {
+      xref: 'paper',
+      yref: 'paper',
+      x: 0,
+      y: 1.11,
+      xanchor: 'left',
+      yanchor: 'top',
+      align: 'left',
+      showarrow: false,
+      bgcolor: 'rgba(8, 13, 22, 0.88)',
+      bordercolor: 'rgba(148,163,184,0.18)',
+      borderwidth: 1,
+      borderpad: 4,
+      text: [
+        `<span style="font-size:12px;font-weight:700;color:#f8fafc">${companyLabel}</span>`,
+        `<span style="font-size:10px;font-weight:600;color:#9fb0cc">${formLabel}</span>`,
+        filedLabel
+          ? `<span style="font-size:10px;font-weight:600;color:#9fb0cc">${filedLabel}</span>`
+          : '',
+      ].filter(Boolean).join('<br>'),
+    };
+  }
+
+  function buildChartAnnotations(sankey, payload) {
+    const annotations = (sankey.annotations || []).map((annotation) => {
       const titleSize = annotation.variant === 'primary' ? 15 : annotation.variant === 'secondary' ? 13 : 12;
       const valueSize = annotation.variant === 'primary' ? 20 : annotation.variant === 'secondary' ? 16 : 14;
       const detail = annotation.detailText
@@ -193,15 +247,15 @@
         ].filter(Boolean).join('<br>'),
       };
     });
+
+    const metadataAnnotation = buildChartMetadataAnnotation(payload);
+    return metadataAnnotation ? [metadataAnnotation, ...annotations] : annotations;
   }
 
-  function renderChart(sankey) {
+  function renderChart(sankey, payload = state.payload) {
     const isMobile = window.matchMedia('(max-width: 920px)').matches;
     const isConstrained = window.matchMedia('(max-width: 860px)').matches;
-    const annotations = buildChartAnnotations(sankey);
-    const linkHoverText = Array.isArray(sankey.linkSignedValue) && sankey.linkSignedValue.length === sankey.value.length
-      ? sankey.linkSignedValue.map((amount) => formatCurrency(amount))
-      : sankey.value.map((amount) => formatCurrency(amount));
+    const annotations = buildChartAnnotations(sankey, payload);
 
     const trace = {
       type: 'sankey',
@@ -227,9 +281,8 @@
         source: sankey.source,
         target: sankey.target,
         value: sankey.value,
-        customdata: linkHoverText,
         color: sankey.linkColors,
-        hovertemplate: '%{source.label} → %{target.label}<br>%{customdata}<extra></extra>',
+        hovertemplate: '%{source.label} → %{target.label}<br>%{value:$,.0f}<extra></extra>',
       },
     };
 
@@ -245,10 +298,10 @@
       },
       annotations,
       margin: isConstrained
-        ? { l: 72, r: 128, t: 142, b: 34 }
+        ? { l: 72, r: 128, t: 176, b: 34 }
         : isMobile
-          ? { l: 46, r: 92, t: 132, b: 34 }
-          : { l: 90, r: 130, t: 146, b: 36 },
+          ? { l: 46, r: 92, t: 166, b: 34 }
+          : { l: 90, r: 130, t: 180, b: 36 },
       hoverlabel: {
         bgcolor: '#162033',
         bordercolor: '#334155',
@@ -283,7 +336,7 @@
     renderIssues([...(payload.issues || []), ...(payload.confidence.issues || [])]);
     renderMetrics(payload.sankey.metrics);
     setButtonsEnabled(true);
-    renderChart(payload.sankey);
+    renderChart(payload.sankey, payload);
   }
 
   function clearChartSurface() {
@@ -682,7 +735,7 @@
 
   window.addEventListener('resize', () => {
     if (state.payload?.sankey && !state.busy) {
-      renderChart(state.payload.sankey);
+      renderChart(state.payload.sankey, state.payload);
     }
   });
 
